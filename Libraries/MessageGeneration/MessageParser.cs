@@ -46,6 +46,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
         private Dictionary<string, string> symbolTable = new Dictionary<string, string>();
         private HashSet<string> constants = new HashSet<string>();
         private Dictionary<string, int> arraySizes = new Dictionary<string, int>();
+        private Dictionary<string, MessageToken> defaultFieldValues = new Dictionary<string, MessageToken>();
             
         private string body = "";
 
@@ -173,11 +174,16 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             {
                 Comment();
             }
-            else if (PeekType(MessageTokenType.BuiltInType) || PeekType(MessageTokenType.DefinedType) || PeekType(MessageTokenType.Header))
+            else if (PeekType(MessageTokenType.FieldDefaultValue) || PeekType(MessageTokenType.BuiltInType) || PeekType(MessageTokenType.DefinedType) || PeekType(MessageTokenType.Header))
             {
                 Declaration();
             }
-            else {
+           // else if ()
+           // {
+            //    tokens.RemoveAt(0); //remove from list
+           // }
+            else
+            {
                 // Mumble mumble
                 if (peeked == null)
                 {
@@ -195,7 +201,8 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
         }
 
         // Comment -> # sigma* \n
-        private void Comment() {
+        private void Comment() 
+        {
             body += MsgAutoGenUtilities.TWO_TABS + "// " + MatchByType(MessageTokenType.Comment) + "\n";
         }
 
@@ -333,8 +340,23 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                         " cannot have constant declaration");
                 }
             }
-            else {
-                declaration += type + " " + identifier + MsgAutoGenUtilities.PROPERTY_EXTENSION + "\n";
+            else
+            {
+                if (PeekType(MessageTokenType.FieldDefaultValue))
+                {
+                    defaultFieldValues.Add(identifier, tokens[0]);
+                }
+            
+                declaration += type + " " + identifier + MsgAutoGenUtilities.PROPERTY_EXTENSION;
+                if (PeekType(MessageTokenType.FieldDefaultValue))
+                {
+                    var fv = FieldDefaultValueDeclaration(type);
+                    if (!String.IsNullOrEmpty(fv))
+                    {
+                        declaration += " = " + fv;
+                    }
+                }
+                declaration += "\n";
             }
             body += declaration;
         }
@@ -342,8 +364,21 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
         // Constant Declaration -> = NumericalConstantValue Comment
         // Constant Declaration -> = StringConstantValue
         // Note that a comment cannot be present in a string constant definition line
-        private string ConstantDeclaration(string type) {
+        private string ConstantDeclaration(string type)
+        {
             string declaration = MatchByType(MessageTokenType.ConstantDeclaration);
+            return CreateCSharpValue(type, declaration);
+        }
+
+        private string FieldDefaultValueDeclaration(string type)
+        {
+            string declaration = MatchByType(MessageTokenType.FieldDefaultValue);
+            if (String.IsNullOrEmpty(declaration)) return String.Empty;
+            return CreateCSharpValue(type, declaration);
+        }
+      
+        private string CreateCSharpValue(string type, string declaration)
+        {
             if (type.Equals("string"))
             {
                 return "\"" + declaration.Trim() + "\";\n";
@@ -367,15 +402,16 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                 // Parse value
                 switch (type) {
                     case "bool":
-                        if (val.Equals("True"))
+                        if (val.ToLower().Equals("true"))
                         {
                             ret += "true";
                         }
-                        else if (val.Equals("False"))
+                        else if (val.ToLower().Equals("false"))
                         {
                             ret += "false";
                         }
-                        else {
+                        else 
+                        {
                             if (byte.TryParse(val, out byte a))
                             {
                                 if (a == 0)
@@ -549,20 +585,26 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             constructor += MsgAutoGenUtilities.TWO_TABS + "{\n";
 
             foreach (string identifier in symbolTable.Keys) {
-                if (!constants.Contains(identifier)) {
-                    constructor += MsgAutoGenUtilities.TWO_TABS + MsgAutoGenUtilities.ONE_TAB + "this." + identifier + " = ";
-                    string type = symbolTable[identifier];
-                    if (builtInTypesDefaultInitialValues.ContainsKey(type))
+                if (!constants.Contains(identifier)) 
+                {
+                    if (!defaultFieldValues.ContainsKey(identifier))
                     {
-                        constructor += builtInTypesDefaultInitialValues[type];
-                    }else if (arraySizes.ContainsKey(identifier))
-                    {
-                        constructor += "new " + type.Remove(type.Length - 1) + arraySizes[identifier] + "]";
+                        constructor += MsgAutoGenUtilities.TWO_TABS + MsgAutoGenUtilities.ONE_TAB + "this." + identifier + " = ";
+                        string type = symbolTable[identifier];
+                        if (builtInTypesDefaultInitialValues.ContainsKey(type))
+                        {
+                            constructor += builtInTypesDefaultInitialValues[type];
+                        }
+                        else if (arraySizes.ContainsKey(identifier))
+                        {
+                            constructor += "new " + type.Remove(type.Length - 1) + arraySizes[identifier] + "]";
+                        }
+                        else
+                        {
+                            constructor += "new " + type + "()";
+                        }
+                        constructor += ";\n";
                     }
-                    else {
-                        constructor += "new " + type + "()";
-                    }
-                    constructor += ";\n";
                 }
             }
 
@@ -575,6 +617,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             string constructor = "";
 
             string parameters = "";
+            string defaultparameters = "";
             string assignments = "";
 
             foreach (string identifier in symbolTable.Keys)
@@ -582,10 +625,19 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                 if (!constants.Contains(identifier))
                 {
                     string type = symbolTable[identifier];
-                    parameters += type + " " + identifier + ", ";
+                    if (defaultFieldValues.ContainsKey(identifier))
+                    {
+                        defaultparameters += type + " " + identifier + " = " + defaultFieldValues[identifier].content + ", ";
+                    }
+                    else
+                    {
+                        parameters += type + " " + identifier + ", ";
+                    }
                     assignments += MsgAutoGenUtilities.TWO_TABS + MsgAutoGenUtilities.ONE_TAB + "this." + identifier + " = " + identifier + ";\n";
                 }
             }
+
+            parameters += defaultparameters;
 
             if (!parameters.Equals("")) {
                 parameters = parameters.Substring(0, parameters.Length - 2);
@@ -599,7 +651,8 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             return constructor;
         }
 
-        private string MatchByType(MessageTokenType type) {
+        private string MatchByType(MessageTokenType type) 
+        {
             MessageToken token = tokens[0];
             if (token.type.Equals(type))
             {

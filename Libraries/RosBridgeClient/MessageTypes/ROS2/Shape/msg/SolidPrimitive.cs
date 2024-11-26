@@ -27,7 +27,7 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Shape
         //  The type of the shape
         public byte type { get; set; }
         //  The dimensions of the shape
-        public double dimensions { get; set; }
+        public double[] dimensions { get; set; }
         //  At no point will dimensions have a length > 3.
         //  The meaning of the shape dimensions: each constant defines the index in the 'dimensions' array.
         //  For type BOX, the X, Y, and Z dimensions are the length of the corresponding sides of the box.
@@ -61,11 +61,11 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Shape
         public SolidPrimitive()
         {
             this.type = 0;
-            this.dimensions = 0.0;
+            this.dimensions = new double[3];
             this.polygon = new Polygon();
         }
 
-        public SolidPrimitive(byte type, double dimensions, Polygon polygon)
+        public SolidPrimitive(byte type, double[] dimensions, Polygon polygon)
         {
             this.type = type;
             this.dimensions = dimensions;

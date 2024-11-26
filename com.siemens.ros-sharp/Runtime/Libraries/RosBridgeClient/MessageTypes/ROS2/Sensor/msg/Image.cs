@@ -33,7 +33,7 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Sensor
         //  image height, that is, number of rows
         public uint width { get; set; }
         //  image width, that is, number of columns
-        //  The legal values for encoding are in file src/image_encodings.cpp
+        //  The legal values for encoding are in file include/sensor_msgs/image_encodings.hpp
         //  If you want to standardize a new string format, join
         //  ros-users@lists.ros.org and send an email proposing a new encoding.
         public string encoding { get; set; }

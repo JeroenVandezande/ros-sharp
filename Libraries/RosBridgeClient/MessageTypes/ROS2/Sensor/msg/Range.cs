@@ -56,6 +56,9 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Sensor
         //  (Detection too close to the sensor to quantify)
         //  +Inf represents no detection within the fixed distance.
         //  (Object out of range)
+        public float variance { get; set; }
+        //  variance of the range sensor
+        //  0 is interpreted as variance unknown
 
         public Range()
         {
@@ -65,9 +68,10 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Sensor
             this.min_range = 0.0f;
             this.max_range = 0.0f;
             this.range = 0.0f;
+            this.variance = 0.0f;
         }
 
-        public Range(Header header, byte radiation_type, float field_of_view, float min_range, float max_range, float range)
+        public Range(Header header, byte radiation_type, float field_of_view, float min_range, float max_range, float range, float variance)
         {
             this.header = header;
             this.radiation_type = radiation_type;
@@ -75,6 +79,7 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Sensor
             this.min_range = min_range;
             this.max_range = max_range;
             this.range = range;
+            this.variance = variance;
         }
     }
 }

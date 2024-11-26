@@ -101,6 +101,20 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                     {
                         listsOfTokens[listIndex].Add(NextArrayDeclaration());
                     }
+                    
+                    // If peek shows '<', this mean there is a size restriction, we will ignore that
+                    if (reader.Peek() == '<')
+                    {
+                        reader.Read(); //ignore char
+                        if (reader.Peek() == '=')
+                        {
+                            reader.Read(); //ignore char
+                        }
+                        while (Char.IsNumber((Char)reader.Peek())) //read the number of the size restriction
+                        {
+                            reader.Read(); //ignore char
+                        }
+                    }
                     DiscardEmpty();
 
                     // Then, field identifier
@@ -116,6 +130,19 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                     if (reader.Peek() == '#')
                     {
                         listsOfTokens[listIndex].Add(NextCommentToken());
+                    }
+                    //the default value of the field
+                    else if (!Char.IsWhiteSpace((Char)reader.Peek()))
+                    {
+                        var fdv = NextFieldDefaultValue();
+                        if (fdv != null)
+                        {
+                            listsOfTokens[listIndex].Add(fdv);
+                            if (reader.Peek() == '#')
+                            {
+                                listsOfTokens[listIndex].Add(NextCommentToken());
+                            }
+                        }
                     }
                     else
                     {
@@ -170,7 +197,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
         /// <returns> All content before '\n' </returns>
         private string ReadUntilNewLineAndTrim() {
             string content = "";
-            while (reader.Peek() != '\n' && !reader.EndOfStream) {
+            while (reader.Peek() != '\n' && reader.Peek() != '#' && !reader.EndOfStream) {
                 if (reader.Peek() != '\r')
                 {
                     content += (char)reader.Read();
@@ -272,7 +299,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             }
 
             // Otherwise, consume input until seperator, EOF or '['
-            while (reader.Peek() != ' ' && reader.Peek() != '[' && !reader.EndOfStream)
+            while (reader.Peek() != ' ' && reader.Peek() != '[' && reader.Peek() != '<' && !reader.EndOfStream)
             {
                 if (!Char.IsLetterOrDigit((char)reader.Peek()) && !allowedSpecialCharacterForTypeIdentifier.Contains((char)reader.Peek())) {
                     throw new MessageTokenizerException("Invalid character in type identifier: " + (char)reader.Peek() + " " + CurrentFileAndLine());
@@ -318,6 +345,14 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             else
             {
                 string arraySizeStr = "";
+                if (reader.Peek() == '<') // Discard <
+                {
+                    reader.Read();
+                }
+                if (reader.Peek() == '=') // Discard =
+                {
+                    reader.Read();
+                }
                 while (reader.Peek() != ']')
                 {
                     arraySizeStr += (char)reader.Read();
@@ -391,6 +426,14 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
 
             return new MessageToken(MessageTokenType.ConstantDeclaration, val, lineNum);
         }
+        
+        private MessageToken NextFieldDefaultValue()
+        {
+            string val = ReadUntilNewLineAndTrim();
+            if (string.IsNullOrEmpty(val)) return null;
+            return new MessageToken(MessageTokenType.FieldDefaultValue, val, lineNum);
+        }
+
 
         /// <summary>
         /// Returns the current file path and line number
