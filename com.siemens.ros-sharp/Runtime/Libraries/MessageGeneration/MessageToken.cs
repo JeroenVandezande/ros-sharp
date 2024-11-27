@@ -44,6 +44,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
         VariableSizeArray,
         Identifier,
         ConstantDeclaration,
+        FieldDefaultValue,
         Seperator
     }
 

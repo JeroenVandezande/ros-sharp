@@ -18,6 +18,7 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Moveit
         public int val { get; set; }
         //  overall behavior
         public const int SUCCESS = 1;
+        public const int UNDEFINED = 0;
         public const int FAILURE = 99999;
         public const int PLANNING_FAILED = -1;
         public const int INVALID_MOTION_PLAN = -2;
@@ -50,15 +51,24 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Moveit
         public const int ABORT = -30;
         //  kinematics errors
         public const int NO_IK_SOLUTION = -31;
+        //  A message to provide additional information.
+        public string message { get; set; }
+        //  Name of the component that created the status.
+        //  This is helpful to locate error source.
+        public string source { get; set; }
 
         public MoveItErrorCodes()
         {
             this.val = 0;
+            this.message = "";
+            this.source = "";
         }
 
-        public MoveItErrorCodes(int val)
+        public MoveItErrorCodes(int val, string message, string source)
         {
             this.val = val;
+            this.message = message;
+            this.source = source;
         }
     }
 }

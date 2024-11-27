@@ -23,7 +23,7 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Moveit
         // to be attached to the link
         // If action is remove and no object.id is set, all objects
         // attached to the link indicated by link_name will be removed
-        public CollisionObject object { get; set; }
+        public CollisionObject @object { get; set; }
         //  The set of links that the attached objects are allowed to touch
         //  by default - the link_name is already considered by default
         public string[] touch_links { get; set; }
@@ -37,16 +37,16 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Moveit
         public AttachedCollisionObject()
         {
             this.link_name = "";
-            this.object = new CollisionObject();
+            this.@object = new CollisionObject();
             this.touch_links = new string[0];
             this.detach_posture = new JointTrajectory();
             this.weight = 0.0;
         }
 
-        public AttachedCollisionObject(string link_name, CollisionObject object, string[] touch_links, JointTrajectory detach_posture, double weight)
+        public AttachedCollisionObject(string link_name, CollisionObject @object, string[] touch_links, JointTrajectory detach_posture, double weight)
         {
             this.link_name = link_name;
-            this.object = object;
+            this.@object = @object;
             this.touch_links = touch_links;
             this.detach_posture = detach_posture;
             this.weight = weight;

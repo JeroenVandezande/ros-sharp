@@ -19,7 +19,7 @@ namespace RosSharp.RosBridgeClient.MessageTypes.BuiltinInterfaces
         //  https://design.ros2.org/articles/clock_and_time.html
         //  The seconds component, valid over all int32 values.
         public int sec { get; set; }
-        //  The nanoseconds component, valid in the range [0, 10e9).
+        //  The nanoseconds component, valid in the range [0, 1e9).
         public uint nanosec { get; set; }
 
         public Time()

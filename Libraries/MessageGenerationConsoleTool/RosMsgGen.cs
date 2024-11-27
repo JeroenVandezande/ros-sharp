@@ -224,7 +224,7 @@ namespace RosSharp.RosBridgeClient.MessageGenerationConsoleTool
                     }
                     else {
                         outputPath = args[i + 1];
-                        outputPath = Path.Combine(outputPath, "RosSharpMessages");
+                        //outputPath = Path.Combine(outputPath, "RosSharpMessages");
                         i++;
                     }
                     continue;

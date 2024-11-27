@@ -22,11 +22,6 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Moveit
 
         //  a header, used for interpreting the poses
         public Header header { get; set; }
-        //  DISCLAIMER: This field is not in use yet and all other poses
-        //  are still interpreted in the header frame.
-        //  https://github.com/ros-planning/moveit/pull/2037
-        //  implements the actual logic for this field.
-        //  ---
         //  The object's pose relative to the header frame.
         //  The shapes and subframe poses are defined relative to this pose.
         public Pose pose { get; set; }

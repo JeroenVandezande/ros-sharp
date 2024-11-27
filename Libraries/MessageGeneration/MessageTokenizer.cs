@@ -129,7 +129,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                     // Optionally, the line may have a comment line
                     if (reader.Peek() == '#')
                     {
-                        listsOfTokens[listIndex].Add(NextCommentToken());
+                        listsOfTokens[listIndex].Add(NextCommentToken(false));
                     }
                     //the default value of the field
                     else if (!Char.IsWhiteSpace((Char)reader.Peek()))
@@ -140,7 +140,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                             listsOfTokens[listIndex].Add(fdv);
                             if (reader.Peek() == '#')
                             {
-                                listsOfTokens[listIndex].Add(NextCommentToken());
+                                listsOfTokens[listIndex].Add(NextCommentToken(false));
                             }
                         }
                     }
@@ -242,7 +242,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
         /// Assumes a '#' has been peeked
         /// </summary>
         /// <returns> Next comment token in the stream </returns>
-        private MessageToken NextCommentToken()
+        private MessageToken NextCommentToken(bool onSameLine = false)
         {
             reader.Read(); // Discard '#'
 
@@ -261,7 +261,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             }
             reader.Read();
             lineNum++;
-            return new MessageToken(MessageTokenType.Comment, comment, lineNum - 1);
+            return new MessageToken(MessageTokenType.Comment, comment, onSameLine ? lineNum : lineNum - 1);
         }
 
         /// <summary>

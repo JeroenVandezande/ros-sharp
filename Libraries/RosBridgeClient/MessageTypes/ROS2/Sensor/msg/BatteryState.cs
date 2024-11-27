@@ -38,15 +38,24 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Sensor
         public const byte POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE = 7;
         public const byte POWER_SUPPLY_HEALTH_SAFETY_TIMER_EXPIRE = 8;
         //  Power supply technology (chemistry) constants
-        public const byte POWER_SUPPLY_TECHNOLOGY_UNKNOWN = 0; //  Unknown battery technology
-        public const byte POWER_SUPPLY_TECHNOLOGY_NIMH = 1; //  Nickel-Metal Hydride battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_LION = 2; //  Lithium-ion battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_LIPO = 3; //  Lithium Polymer battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_LIFE = 4; //  Lithium Iron Phosphate battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_NICD = 5; //  Nickel-Cadmium battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_LIMN = 6; //  Lithium Manganese Dioxide battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_TERNARY = 7; //  Ternary Lithium battery
-        public const byte POWER_SUPPLY_TECHNOLOGY_VRLA = 8; //  Valve Regulated Lead-Acid battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_UNKNOWN = 0;
+        //  Unknown battery technology
+        public const byte POWER_SUPPLY_TECHNOLOGY_NIMH = 1;
+        //  Nickel-Metal Hydride battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_LION = 2;
+        //  Lithium-ion battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_LIPO = 3;
+        //  Lithium Polymer battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_LIFE = 4;
+        //  Lithium Iron Phosphate battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_NICD = 5;
+        //  Nickel-Cadmium battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_LIMN = 6;
+        //  Lithium Manganese Dioxide battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_TERNARY = 7;
+        //  Ternary Lithium battery
+        public const byte POWER_SUPPLY_TECHNOLOGY_VRLA = 8;
+        //  Valve Regulated Lead-Acid battery
         public Header header { get; set; }
         public float voltage { get; set; }
         //  Voltage in Volts (Mandatory)
