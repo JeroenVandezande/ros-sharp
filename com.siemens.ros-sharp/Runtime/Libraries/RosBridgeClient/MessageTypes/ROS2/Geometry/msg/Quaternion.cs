@@ -16,13 +16,25 @@ namespace RosSharp.RosBridgeClient.MessageTypes.Geometry
         public const string RosMessageName = "geometry_msgs/msg/Quaternion";
 
         //  This represents an orientation in free space in quaternion form.
-        public const double x = 0;
-        public const double y = 0;
-        public const double z = 0;
-        public const double w = 1;
+        public double x { get; set; } = 0;
+
+        public double y { get; set; } = 0;
+
+        public double z { get; set; } = 0;
+
+        public double w { get; set; } = 1;
+
 
         public Quaternion()
         {
+        }
+
+        public Quaternion(double x = 0, double y = 0, double z = 0, double w = 1)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
         }
     }
 }

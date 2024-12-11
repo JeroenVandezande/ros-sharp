@@ -281,7 +281,7 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                 throw new MessageTokenizerException("Unexpected token '" + token + "'. Did you mean '---' (ROS Service/Action seperator)?");
             }
         }
-
+        
         /// <summary>
         /// Returns the next type identifier token
         /// Type identifiers start with an alphabet and can contain _ and /
@@ -377,6 +377,24 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             }
         }
 
+        private string EscapeTokenString(string token)
+        {
+            switch (token.ToLower())
+            {
+                case "object":
+                {
+                    return "@object";
+                    break;
+                }
+                default:
+                {
+                    return token;
+                }
+                
+            }
+            
+        }
+        private string _lastTokenName;
         /// <summary>
         /// Returns the next field identifier token
         /// Field identifiers can only start with an alphabet
@@ -409,7 +427,8 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
                 tokenStr += (char)reader.Read();
             }
 
-            return new MessageToken(MessageTokenType.Identifier, tokenStr, lineNum);
+            _lastTokenName = tokenStr;
+            return new MessageToken(MessageTokenType.Identifier, EscapeTokenString(tokenStr), lineNum);
         }
 
         /// <summary>
@@ -423,8 +442,15 @@ namespace RosSharp.RosBridgeClient.MessageGeneration
             reader.Read();
 
             string val = ReadUntilNewLineAndTrim();
-
-            return new MessageToken(MessageTokenType.ConstantDeclaration, val, lineNum);
+            
+            if (_lastTokenName.ToUpper() == _lastTokenName)
+            {
+                return new MessageToken(MessageTokenType.ConstantDeclaration, val, lineNum);
+            }
+            else
+            {
+                return new MessageToken(MessageTokenType.FieldDefaultValue, val, lineNum);
+            }
         }
         
         private MessageToken NextFieldDefaultValue()
